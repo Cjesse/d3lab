@@ -1,0 +1,148 @@
+<html>
+<head>
+  <!-- complete your HTML head here -->
+  <title>Webpage</title>
+  <script src="http://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <!-- <script type="text/javascript", src="main.js"></script> -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<h4 id="hovered">You have not chosen a circle</h4>
+<script>
+  // form select option
+  d3.csv('car.csv', function(dataRaw) {
+    d3.keys(dataRaw[0]).forEach(function(item){
+      if (item !== "name" && item !== "origin") {
+        d3.select("#sel-x").append("option").text(item).attr('value', item);
+        d3.select("#sel-y").append("option").text(item).attr('value', item);
+      }
+    })
+  })
+  // on click
+  $(document).ready(function(){
+    $("button").click(function(){
+        // get the selected option
+        var selx = document.getElementById('sel-x');
+        xValue = selx.options[selx.selectedIndex].value;
+        // console.log(sel.options[sel.selectedIndex].value);
+        var sely = document.getElementById('sel-y');
+        yValue = sely.options[sely.selectedIndex].value;
+        // mpg range
+        var mpgLow = 
+
+        d3.csv('car.csv', function (data) {
+        // Variables
+        var body = d3.select('body')
+        var margin = { top: 50, right: 50, bottom: 50, left: 50 }
+        var h = 500 - margin.top - margin.bottom
+        var w = 500 - margin.left - margin.right
+        // Scales
+        var colorScale = d3.scaleOrdinal(d3.schemeCategory20);
+        var xScale = d3.scaleLinear()
+          .domain([
+            d3.min([0,d3.min(data,function (d) { return +d[xValue] })]),
+            d3.max([0,d3.max(data,function (d) { return +d[xValue] })])
+            ])
+          .range([0,w])
+        var yScale = d3.scaleLinear()
+          .domain([
+            d3.min([0,d3.min(data,function (d) { return +d[yValue] })]),
+            d3.max([0,d3.max(data,function (d) { return +d[yValue] })])
+            ])
+          .range([h,0])
+        // SVG
+        var svg = body.append('svg')
+            .attr('height',h + margin.top + margin.bottom)
+            .attr('width',w + margin.left + margin.right)
+          .append('g')
+            .attr('transform','translate(' + margin.left + ',' + margin.top + ')')
+        // X-axis
+        var xAxis = d3.axisBottom(xScale)
+          .ticks(5)
+        // Y-axis
+        var yAxis = d3.axisLeft(yScale)
+          .ticks(5)
+        // Circles
+        var circles = svg.selectAll('circle')
+            .data(data)
+            .enter()
+          .append('circle')
+            .attr('cx',function (d) { return xScale(d[xValue]) })
+            .attr('cy',function (d) { return yScale(d[yValue]) })
+            .attr('r','2')
+            .attr('stroke','black')
+            .attr('stroke-width',1)
+            .attr('fill',function (d,i) { return colorScale(i) })
+            .on('mouseover', function (d) {
+              d3.select(this)
+                .transition()
+                .duration(10)
+                .attr('r',5)
+                .attr('stroke-width',1);
+              d3.select("h4").text(d.name);
+            })
+            .on('mouseout', function () {
+              d3.select(this)
+                .transition()
+                .duration(10)
+                .attr('r',2)
+                .attr('stroke-width',1);
+              d3.select("h4").text(function() {
+                return "You have not chosen a circle";
+              });
+            })
+          .append('title') // Tooltip
+            .text(function (d) { return '\nName: ' + d.name + '\nDisplacement: ' + d[yValue] })
+        // X-axis
+        svg.append('g')
+            .attr('class','axis')
+            .attr('transform', 'translate(0,' + h + ')')
+            .call(xAxis)
+          .append('text') // X-axis Label
+            .attr('class','label')
+            .attr('y',-10)
+            .attr('x',w)
+            .attr('dy','.71em')
+            .style('text-anchor','end')
+            .text('Annualized Standard Deviation')
+        // Y-axis
+        svg.append('g')
+            .attr('class', 'axis')
+            .call(yAxis)
+          .append('text') // y-axis Label
+            .attr('class','label')
+            .attr('transform','rotate(-90)')
+            .attr('x',0)
+            .attr('y',5)
+            .attr('dy','.71em')
+            .style('text-anchor','end')
+            .text('Annualized Return')
+      });
+          });
+});
+  
+</script>
+<div class="plot">
+  <svg></svg>
+</div>
+<div class="ui">
+  <div>
+    <label>X-Axis</label>
+    <select id="sel-x">
+      <!-- <option value="mpg">mpg</option> -->
+    </select>
+    <label>Y-Axis</label>
+    <select id="sel-y">
+      <!-- <option value="">displacement</option> -->
+    </select>
+  </div>
+  <div>
+    <input id="mpg-min" type="text" value="0" size="10">
+    <input id="mpg-max" type="text" value="30" size="10">
+    <button id="update">Query MPG</button>
+  </div>
+</div>
+</body>
+</html>
+
