@@ -1,155 +1,169 @@
 <html>
 <head>
   <!-- complete your HTML head here -->
-  <title>Webpage</title>
-  <script src="http://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
   <script src="https://d3js.org/d3.v4.min.js"></script>
-  <!-- <script type="text/javascript", src="main.js"></script> -->
-  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<h4 id="hovered">You have not chosen a circle</h4>
-<script>
-  // form select option
-  d3.csv('car.csv', function(dataRaw) {
-    d3.keys(dataRaw[0]).forEach(function(item){
-      if (item !== "name" && item !== "origin") {
-        d3.select("#sel-x").append("option").text(item).attr('value', item);
-        d3.select("#sel-y").append("option").text(item).attr('value', item);
-      }
-    })
-  })
-  // on click
-  $(document).ready(function(){
-    $("button").click(function(){
-        // get the selected option
-        var selx = document.getElementById('sel-x');
-        xValue = selx.options[selx.selectedIndex].value;
-        // console.log(sel.options[sel.selectedIndex].value);
-        var sely = document.getElementById('sel-y');
-        yValue = sely.options[sely.selectedIndex].value;
-        // mpg range
-        var mpgLow = document.getElementById('mpg-min');
-        console.log(mpgLow.value);
-        var mpgHigh = document.getElementById('mpg-max');
-
-
-        d3.csv('car.csv', function (data) {
-        // Variables
-        var body = d3.select('body')
-        var margin = { top: 50, right: 50, bottom: 50, left: 50 }
-        var h = 500 - margin.top - margin.bottom
-        var w = 500 - margin.left - margin.right
-        // Scales
-        var colorScale = d3.scaleOrdinal(d3.schemeCategory20);
-        var xScale = d3.scaleLinear()
-          .domain([
-            d3.min([0,d3.min(data,function (d) { return +d[xValue] })]),
-            d3.max([0,d3.max(data,function (d) { return +d[xValue] })])
-            ])
-          .range([0,w])
-        var yScale = d3.scaleLinear()
-          .domain([
-            d3.min([0,d3.min(data,function (d) { return +d[yValue] })]),
-            d3.max([0,d3.max(data,function (d) { return +d[yValue] })])
-            ])
-          .range([h,0])
-        // SVG
-        var svg = body.append('svg')
-            .attr('height',h + margin.top + margin.bottom)
-            .attr('width',w + margin.left + margin.right)
-          .append('g')
-            .attr('transform','translate(' + margin.left + ',' + margin.top + ')')
-        // X-axis
-        var xAxis = d3.axisBottom(xScale)
-          .ticks(5)
-        // Y-axis
-        var yAxis = d3.axisLeft(yScale)
-          .ticks(5)
-        // Circles
-        var circles = svg.selectAll('circle')
-            .data(data)
-            .enter()
-          .append('circle')
-            .attr('cx',function (d) { if ((d.mpg >= mpgLow.value) && (d.mpg <= mpgHigh.value)) {
-              return xScale(d[xValue])
-            }
-               })
-            .attr('cy',function (d) { if ((d.mpg >= mpgLow.value) && (d.mpg <= mpgHigh.value)) {
-              return yScale(d[yValue])
-            }
-               })
-            .attr('r','2')
-            .attr('stroke','black')
-            .attr('stroke-width',1)
-            .attr('fill',function (d,i) { return colorScale(i) })
-            .on('mouseover', function (d) {
-              d3.select(this)
-                .transition()
-                .duration(10)
-                .attr('r',5)
-                .attr('stroke-width',1);
-              d3.select("h4").text(d.name);
-            })
-            .on('mouseout', function () {
-              d3.select(this)
-                .transition()
-                .duration(10)
-                .attr('r',2)
-                .attr('stroke-width',1);
-              d3.select("h4").text(function() {
-                return "You have not chosen a circle";
-              });
-            })
-          .append('title') // Tooltip
-            .text(function (d) { return '\nName: ' + d.name + '\nmpg: ' + d.mpg })
-        // X-axis
-        svg.append('g')
-            .attr('class','axis')
-            .attr('transform', 'translate(0,' + h + ')')
-            .call(xAxis)
-          .append('text') // X-axis Label
-            .attr('class','label')
-            .attr('y',-10)
-            .attr('x',w)
-            .attr('dy','.71em')
-            .style('text-anchor','end')
-            .text('Annualized Standard Deviation')
-        // Y-axis
-        svg.append('g')
-            .attr('class', 'axis')
-            .call(yAxis)
-          .append('text') // y-axis Label
-            .attr('class','label')
-            .attr('transform','rotate(-90)')
-            .attr('x',0)
-            .attr('y',5)
-            .attr('dy','.71em')
-            .style('text-anchor','end')
-            .text('Annualized Return')
-      });
-          });
-});
-  
-</script>
+<h4 id="hovered">chevrolet chevelle malibu</h4>
 <div class="plot">
-  <svg></svg>
+  <svg>
+    <script type="text/javascript">
+        // form select option
+          d3.csv('car.csv', function(dataRaw) {
+            d3.keys(dataRaw[0]).forEach(function(item){
+              if (item !== "name" && item !== "origin") {
+                d3.select("#sel-x").append("option").text(item).attr('value', item);
+                d3.select("#sel-y").append("option").text(item).attr('value', item);
+              }
+            })
+          })
+        var w = 500;
+        var h = 500;
+        var padding = 30;
+
+        function csvParse(xAxis, yAxis, minMPG, maxMPG) {
+            var svg = d3.select("svg")
+                .attr("width", w)
+                .attr("height", h)
+                .attr("XAxis", xAxis)
+                .attr("YAxis", yAxis)
+                .attr("maxMPG", maxMPG)
+                .attr("minMPG", minMPG);
+
+            d3.csv("car.csv", function (error, data) {
+               
+                var selx = document.getElementById('sel-x');
+                xValue = selx.options[selx.selectedIndex].value;
+                var xScale = d3.scaleLinear()
+                  .domain([
+                    d3.min([0,d3.min(data,function (d) { return +d[xValue] })]) / 1.02,
+                    d3.max([0,d3.max(data,function (d) { return +d[xValue] })])
+                    ])
+                  .range([padding, w - padding * 2])
+
+                
+                    var sely = document.getElementById('sel-y');
+                    yValue = sely.options[sely.selectedIndex].value;
+                    var yScale = d3.scaleLinear()
+                      .domain([
+                        d3.min([0,d3.min(data,function (d) { return +d[yValue] })]) / 1.02,
+                        d3.max([0,d3.max(data,function (d) { return +d[yValue] })])
+                        ])
+                      .range([h - padding, padding])
+
+                //Define X axis
+                var xAxis = d3.axisBottom()
+                    .scale(xScale)
+                    .ticks(5);
+
+                //Define Y axis
+                var yAxis = d3.axisLeft()
+                    .scale(yScale)
+                    .ticks(5);
+
+                svg.selectAll("circle")
+                    .data(data)
+                    .enter()
+                    .append("circle")
+                    .filter(function (d) {
+                        return d.mpg <= maxMPG
+                    })
+                    .filter(function (d) {
+                        return d.mpg >= minMPG
+                    })
+                    .attr("cx", function (d) {
+                        return xScale(d[xValue])
+                    })
+                    .attr("cy", function (d) {
+                        return yScale(d[yValue])
+                    })
+                    .attr("r", 3)
+                    .on("mouseover", function (d) {
+                        d3.select("#hovered").text(d.name);
+                    });
+
+                //Create X axis
+                svg.append("g")
+                    .attr("class", "axis")
+                    .attr("transform", "translate(0," + (h - padding) + ")")
+                    .transition()
+                    .call(xAxis)
+
+                //Create Y axis
+                svg.append("g")
+                    .attr("class", "axis")
+                    .attr("transform", "translate(" + padding + ",0)")
+                    .transition()
+                    .call(yAxis);
+
+                svg.append("text")
+                    .attr("text-anchor", "middle")
+                    .attr("transform", "translate(40, 70)rotate(90)")
+                    .text(svg.attr("YAxis"))
+                    .style("font-weight", "bold")
+                    .attr("font-size","15px");
+
+                svg.append("text")
+                    .attr("text-anchor", "middle")
+                    .attr("transform", "translate("+ (w - 100) +","+ (h - 40) +")")
+                    .text(svg.attr("XAxis"))
+                    .style("font-weight", "bold")
+                    .attr("font-size","15px");
+            });
+        }
+        csvParse("mpg", "displacement", 10, 20);
+
+        function selectXAxis(obj) {
+            var value = obj.options[obj.selectedIndex].value;
+            var yValue = d3.select("svg").attr("YAxis");
+            var maxMPG = d3.select("svg").attr("maxMPG");
+            var minMPG = d3.select("svg").attr("minMPG");
+            update();
+            csvParse(value, yValue, minMPG, maxMPG);
+        }
+
+        function selectYAxis(obj){
+            var value = obj.options[obj.selectedIndex].value;
+            var xValue = d3.select("svg").attr("XAxis");
+            var maxMPG = d3.select("svg").attr("maxMPG");
+            var minMPG = d3.select("svg").attr("minMPG");
+            update();
+            csvParse(xValue, value, minMPG, maxMPG);
+        }
+
+        function update() {
+            d3.select("svg").selectAll("g").remove();
+            d3.select("svg").selectAll("text").remove();
+            d3.select("svg").selectAll("circle")
+                .remove();
+        }
+
+        function queryMPG() {
+            var maxMPG = d3.select("#mpg-max").node().value;
+            var minMPG = d3.select("#mpg-min").node().value;
+            var xValue = d3.select("svg").attr("XAxis");
+            var yValue = d3.select("svg").attr("YAxis");
+            update();
+            csvParse(xValue, yValue, minMPG, maxMPG);
+        }
+
+    </script>
+  </svg>
 </div>
 <div class="ui">
   <div>
     <label>X-Axis</label>
-    <select id="sel-x">
-      <!-- <option value="mpg">mpg</option> -->
+    <select id="sel-x" onchange="selectXAxis(this)">
     </select>
     <label>Y-Axis</label>
-    <select id="sel-y">
-      <!-- <option value="">displacement</option> -->
+    <select id="sel-y" onchange="selectYAxis(this)">
     </select>
   </div>
   <div>
     <input id="mpg-min" type="text" value="0" size="10">
     <input id="mpg-max" type="text" value="30" size="10">
-    <button id="update">Query MPG</button>
+    <button id="update" onclick="queryMPG()">Query MPG</button>
   </div>
 </div>
 </body>
